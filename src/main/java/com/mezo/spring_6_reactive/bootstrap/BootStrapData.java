@@ -3,6 +3,7 @@ package com.mezo.spring_6_reactive.bootstrap;
 import com.mezo.spring_6_reactive.domain.Juice;
 import com.mezo.spring_6_reactive.repository.JuiceRepo;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,7 @@ public class BootStrapData implements CommandLineRunner {
 
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         juiceRepo.count()
                  .subscribe(count -> {
                      if (count == 0) {
@@ -27,7 +28,7 @@ public class BootStrapData implements CommandLineRunner {
                  });
 
         juiceRepo.count()
-                 .subscribe(count -> System.out.println(count));
+                 .subscribe(System.out::println);
 
     }
 
@@ -69,6 +70,14 @@ public class BootStrapData implements CommandLineRunner {
                  .subscribe();
         juiceRepo.save(beer3)
                  .subscribe();
+
+//        for(Integer i=0;i<100;i++) {
+//            Juice rand = Juice.builder()
+//                              .name(RandomStringUtils.randomAlphanumeric(10))
+//                              .build();
+//            juiceRepo.save(rand).subscribe();
+//        }
+
 
     }
 }
