@@ -20,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JuiceController {
 
+    public static final String JUICE_PATH = "/api/v2/juices";
     public static final String JUICE_PATH_ID = "/{juiceId}";
 
     private final JuiceService juiceService;
@@ -48,7 +49,7 @@ public class JuiceController {
     @PutMapping(JUICE_PATH_ID)
     Mono<ResponseEntity<Void>> updateJuice(@PathVariable Integer juiceId, @Validated @RequestBody JuiceDTO juiceDTO) {
         return juiceService.updateJuice(juiceId, juiceDTO)
-                           .map(updateJuice -> ResponseEntity.ok()
+                           .map(updateJuice -> ResponseEntity.noContent()
                                                              .build());
     }
 
@@ -62,7 +63,9 @@ public class JuiceController {
     @DeleteMapping(JUICE_PATH_ID)
     Mono<ResponseEntity<Void>> deleteJuice(@PathVariable Integer juiceId) {
         return juiceService.deleteJuice(juiceId)
-                           .map(deletedJuice -> ResponseEntity.noContent()
-                                                              .build());
+                           .thenReturn(ResponseEntity.noContent()
+                                                     .build());
     }
+
+
 }
