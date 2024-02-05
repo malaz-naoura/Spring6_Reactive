@@ -3,6 +3,7 @@ package com.mezo.spring_6_reactive.controller;
 import com.mezo.spring_6_reactive.domain.Juice;
 import com.mezo.spring_6_reactive.model.JuiceDTO;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ class JuiceControllerTest {
 
 
     @Test
+    @Order(10)
     void listJuices() {
 
         webTestClient.get()
@@ -49,6 +51,7 @@ class JuiceControllerTest {
     }
 
     @Test
+    @Order(10)
     void getById() {
         webTestClient.get()
                      .uri(JuiceController.JUICE_PATH + JuiceController.JUICE_PATH_ID, 1)
@@ -62,6 +65,7 @@ class JuiceControllerTest {
     }
 
     @Test
+    @Order(20)
     void testCreateJuice() {
         webTestClient.post()
                      .uri(JuiceController.JUICE_PATH)
@@ -75,14 +79,27 @@ class JuiceControllerTest {
     }
 
     @Test
+    @Order(30)
     void testUpdateJuice() {
 
         webTestClient.put()
-                     .uri(JuiceController.JUICE_PATH, JuiceController.JUICE_PATH_ID)
+                     .uri(JuiceController.JUICE_PATH + JuiceController.JUICE_PATH_ID, 1)
                      .contentType(MediaType.APPLICATION_JSON)
-                     .body(Mono.just(dumpjuice),JuiceDTO.class)
+                     .body(Mono.just(dumpjuice), JuiceDTO.class)
                      .exchange()
                      .expectStatus()
                      .isNoContent();
     }
+
+    @Test
+    @Order(40)
+    void deleteJuice() {
+        webTestClient.delete()
+                     .uri(JuiceController.JUICE_PATH+ JuiceController.JUICE_PATH_ID,1)
+                     .exchange()
+                     .expectStatus()
+                     .isNoContent();
+    }
+
+
 }
