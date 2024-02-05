@@ -5,9 +5,11 @@ import com.mezo.spring_6_reactive.mappers.JuiceMapper;
 import com.mezo.spring_6_reactive.model.JuiceDTO;
 import com.mezo.spring_6_reactive.repository.JuiceRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -39,9 +41,19 @@ public class JuiceServiceImpl implements JuiceService {
 
     @Override
     public Mono<JuiceDTO> updateJuice(Integer juiceId, JuiceDTO juiceDTO) {
-        juiceDTO.setId(juiceId);
-        return juiceRepo.save(juiceMapper.dtoToObj(juiceDTO))
+        return juiceRepo.findById(juiceId)
+                        .map(juice -> {
+                            juice.setName(juiceDTO.getName());
+                            juice.setPrice(juiceDTO.getPrice());
+                            juice.setUpc(juiceDTO.getUpc());
+                            juice.setStyle(juiceDTO.getStyle());
+                            juice.setQuantityOnHand(juiceDTO.getQuantityOnHand());
+                            return juice;
+                        })
+                        .flatMap(juiceRepo::save)
                         .map(juiceMapper::objToDto);
+
+
     }
 
     @Override
@@ -61,11 +73,7 @@ public class JuiceServiceImpl implements JuiceService {
     }
 
     @Override
-    public Mono<ResponseEntity<Void>> deleteJuice(Integer juiceId) {
-        return juiceRepo.deleteById(juiceId)
-                        .map(unused -> ResponseEntity.noContent()
-                                                     .build());
+    public Mono<Void> deleteJuice(Integer juiceId) {
+        return juiceRepo.deleteById(juiceId);
     }
-
-
 }

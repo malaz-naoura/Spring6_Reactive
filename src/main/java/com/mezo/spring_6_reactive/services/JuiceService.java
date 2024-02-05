@@ -18,5 +18,5 @@ public interface JuiceService {
 
     Mono<JuiceDTO> patchJuice(Integer juiceId, JuiceDTO juiceDTO);
 
-    Mono<ResponseEntity<Void>> deleteJuice(Integer juiceId);
+    Mono<Void> deleteJuice(Integer juiceId);
 }

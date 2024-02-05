@@ -65,6 +65,16 @@ class JuiceControllerTest {
     }
 
     @Test
+    @Order(10)
+    void getByIdNotFound() {
+        webTestClient.get()
+                     .uri(JuiceController.JUICE_PATH + JuiceController.JUICE_PATH_ID, 999)
+                     .exchange()
+                     .expectStatus()
+                     .isNotFound();
+    }
+
+    @Test
     @Order(20)
     void testCreateJuice() {
         webTestClient.post()
@@ -76,6 +86,19 @@ class JuiceControllerTest {
                      .isCreated()
                      .expectHeader()
                      .location("http://localhost:8080/api/v2/juices/4");
+    }
+
+    @Test
+    @Order(20)
+    void testCreateJuiceWithBadData() {
+        webTestClient.post()
+                     .uri(JuiceController.JUICE_PATH)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .body(Mono.just(Juice.builder()
+                                          .build()), JuiceDTO.class)
+                     .exchange()
+                     .expectStatus()
+                     .isBadRequest();
     }
 
     @Test
@@ -92,13 +115,51 @@ class JuiceControllerTest {
     }
 
     @Test
+    @Order(30)
+    void testUpdateJuiceWithBadRequest() {
+
+        webTestClient.put()
+                     .uri(JuiceController.JUICE_PATH + JuiceController.JUICE_PATH_ID, 1)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .body(Mono.just(Juice.builder()
+                                          .build()), JuiceDTO.class)
+                     .exchange()
+                     .expectStatus()
+                     .isBadRequest();
+    }
+
+    @Test
+    @Order(30)
+    void testUpdateJuiceWithIdNotFound() {
+
+        webTestClient.put()
+                     .uri(JuiceController.JUICE_PATH + JuiceController.JUICE_PATH_ID, 999)
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .body(Mono.just(dumpjuice), JuiceDTO.class)
+                     .exchange()
+                     .expectStatus()
+                     .isNotFound();
+    }
+
+
+    @Test
     @Order(40)
     void deleteJuice() {
         webTestClient.delete()
-                     .uri(JuiceController.JUICE_PATH+ JuiceController.JUICE_PATH_ID,1)
+                     .uri(JuiceController.JUICE_PATH + JuiceController.JUICE_PATH_ID, 1)
                      .exchange()
                      .expectStatus()
                      .isNoContent();
+    }
+
+    @Test
+    @Order(40)
+    void deleteJuiceWithNotFoundId() {
+        webTestClient.delete()
+                     .uri(JuiceController.JUICE_PATH + JuiceController.JUICE_PATH_ID, 999)
+                     .exchange()
+                     .expectStatus()
+                     .isNotFound();
     }
 
 

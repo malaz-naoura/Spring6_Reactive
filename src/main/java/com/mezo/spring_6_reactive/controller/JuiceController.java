@@ -1,19 +1,16 @@
 package com.mezo.spring_6_reactive.controller;
 
-import com.mezo.spring_6_reactive.domain.Juice;
 import com.mezo.spring_6_reactive.model.JuiceDTO;
 import com.mezo.spring_6_reactive.services.JuiceService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v2/juices")
@@ -32,7 +29,8 @@ public class JuiceController {
 
     @GetMapping(JUICE_PATH_ID)
     Mono<JuiceDTO> getById(@PathVariable Integer juiceId) {
-        return juiceService.getById(juiceId);
+        return juiceService.getById(juiceId)
+                           .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
     }
 
     @PostMapping
@@ -48,7 +46,9 @@ public class JuiceController {
 
     @PutMapping(JUICE_PATH_ID)
     Mono<ResponseEntity<Void>> updateJuice(@PathVariable Integer juiceId, @Validated @RequestBody JuiceDTO juiceDTO) {
+
         return juiceService.updateJuice(juiceId, juiceDTO)
+                           .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
                            .map(updateJuice -> ResponseEntity.noContent()
                                                              .build());
     }
@@ -62,10 +62,9 @@ public class JuiceController {
 
     @DeleteMapping(JUICE_PATH_ID)
     Mono<ResponseEntity<Void>> deleteJuice(@PathVariable Integer juiceId) {
-        return juiceService.deleteJuice(juiceId)
-                           .thenReturn(ResponseEntity.noContent()
-                                                     .build());
+        return juiceService.getById(juiceId)
+                   .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                   .map(juiceDTO -> juiceService.deleteJuice(juiceDTO.getId()))
+                   .thenReturn(ResponseEntity.noContent().build());
     }
-
-
 }
